@@ -1,11 +1,17 @@
 package com.breakthebill.Break.the.Bill.service;
 
+import com.breakthebill.Break.the.Bill.DTO.LoginDTO;
 import com.breakthebill.Break.the.Bill.DTO.UserDTO;
 import com.breakthebill.Break.the.Bill.model.User;
 
 import java.util.Optional;
 
+import java.util.List;
+
 public interface UserService {
     User createUser(UserDTO userDTO);
-    Optional<User> getUserById(Long id); // ⬅️ Long instead of UUID
+    Optional<User> getUserById(Long id);
+    List<User> getAllUsers(); // 👈 Add this
+    User saveLoginInfo(LoginDTO loginDTO);
+    
 }

@@ -1,24 +1,26 @@
 package com.breakthebill.Break.the.Bill.service;
 
-import java.sql.Timestamp;
-import java.util.Optional;
+import com.breakthebill.Break.the.Bill.DTO.LoginDTO;
+import com.breakthebill.Break.the.Bill.DTO.UserDTO;
+import com.breakthebill.Break.the.Bill.model.User;
+import com.breakthebill.Break.the.Bill.repository.UserRepository;
+import com.breakthebill.Break.the.Bill.service.UserService;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.breakthebill.Break.the.Bill.DTO.UserDTO;
-import com.breakthebill.Break.the.Bill.model.User;
-import com.breakthebill.Break.the.Bill.repository.UserRepository;
+import java.sql.Timestamp;
+import java.util.Optional;
+
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepo;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+    public UserServiceImpl(UserRepository userRepo) {
+        this.userRepo = userRepo;
     }
 
     @Override
@@ -26,14 +28,29 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(userDTO.getPassword()));
-        user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        return userRepository.save(user);
+
+        // Optional: hash password if storing securely
+        user.setPasswordHash(userDTO.getPassword());
+
+        return userRepo.save(user);
     }
 
     @Override
-    public Optional<User> getUserById(Long id) { // ⬅️ Long instead of UUID
-        return userRepository.findById(id);
+    public Optional<User> getUserById(Long id) {
+        return userRepo.findById(id);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
+    }
+
+    @Override
+    public User saveLoginInfo(LoginDTO loginDTO) {
+        User user = new User();
+        user.setEmail(loginDTO.getEmail());
+        user.setPasswordHash(loginDTO.getPassword());
+
+        return userRepo.save(user);
     }
 }

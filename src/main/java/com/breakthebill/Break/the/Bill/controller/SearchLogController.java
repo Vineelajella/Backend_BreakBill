@@ -6,7 +6,7 @@ import com.breakthebill.Break.the.Bill.service.SearchLogService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/search-logs")
 public class SearchLogController {

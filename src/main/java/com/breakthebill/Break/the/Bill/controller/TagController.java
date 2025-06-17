@@ -6,7 +6,7 @@ import com.breakthebill.Break.the.Bill.service.TagService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/tags")
 public class TagController {

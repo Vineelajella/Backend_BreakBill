@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.breakthebill.Break.the.Bill.DTO.ReceiptDTO;
 import com.breakthebill.Break.the.Bill.model.Receipt;
 import com.breakthebill.Break.the.Bill.service.ReceiptService;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/receipts")
 public class ReceiptController {
