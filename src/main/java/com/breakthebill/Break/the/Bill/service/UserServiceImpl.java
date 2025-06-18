@@ -25,12 +25,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(UserDTO userDTO) {
+        // 1. Validate passwords match
+        if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("❌ Passwords do not match.");
+        }
+
+        // 2. Check if email already exists
+        if (userRepo.existsByEmail(userDTO.getEmail())) {
+            throw new IllegalArgumentException("❌ Email already registered.");
+        }
+
+        // 3. Create and save user
         User user = new User();
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
 
-        // Optional: hash password if storing securely
-        user.setPasswordHash(userDTO.getPassword());
+        // ✅ Secure password hashing
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPasswordHash(passwordEncoder.encode(userDTO.getPassword()));
+
+        user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        user.setIsDeleted(false);
 
         return userRepo.save(user);
     }
@@ -39,6 +55,7 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getUserById(Long id) {
         return userRepo.findById(id);
     }
+
 
     @Override
     public List<User> getAllUsers() {

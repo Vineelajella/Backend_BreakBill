@@ -10,4 +10,5 @@ import com.breakthebill.Break.the.Bill.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> { // ⬅️ Long instead of UUID
     Optional<User> findByEmail(String email);
+    boolean existsByEmail(String email); 
 }
