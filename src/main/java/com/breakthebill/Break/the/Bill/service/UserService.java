@@ -12,6 +12,7 @@ public interface UserService {
     User createUser(UserDTO userDTO);
     Optional<User> getUserById(Long id);
     List<User> getAllUsers(); // 👈 Add this
-    User saveLoginInfo(LoginDTO loginDTO);
+    void saveLoginInfo(LoginDTO loginDTO);
+	boolean emailExists(String email);
     
 }

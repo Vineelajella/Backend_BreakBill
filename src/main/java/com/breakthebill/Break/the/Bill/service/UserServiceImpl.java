@@ -1,26 +1,26 @@
 package com.breakthebill.Break.the.Bill.service;
 
-import com.breakthebill.Break.the.Bill.DTO.LoginDTO;
-import com.breakthebill.Break.the.Bill.DTO.UserDTO;
-import com.breakthebill.Break.the.Bill.model.User;
-import com.breakthebill.Break.the.Bill.repository.UserRepository;
-import com.breakthebill.Break.the.Bill.service.UserService;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.Optional;
-
-import java.util.List;
+import com.breakthebill.Break.the.Bill.DTO.LoginDTO;
+import com.breakthebill.Break.the.Bill.DTO.UserDTO;
+import com.breakthebill.Break.the.Bill.model.User;
+import com.breakthebill.Break.the.Bill.repository.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepo;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepo) {
         this.userRepo = userRepo;
+        this.passwordEncoder = new BCryptPasswordEncoder(); // ✅ initialize encoder once
     }
 
     @Override
@@ -39,11 +39,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
-
-        // ✅ Secure password hashing
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPasswordHash(passwordEncoder.encode(userDTO.getPassword()));
-
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         user.setIsDeleted(false);
@@ -56,18 +52,33 @@ public class UserServiceImpl implements UserService {
         return userRepo.findById(id);
     }
 
-
     @Override
     public List<User> getAllUsers() {
         return userRepo.findAll();
     }
 
     @Override
-    public User saveLoginInfo(LoginDTO loginDTO) {
-        User user = new User();
-        user.setEmail(loginDTO.getEmail());
-        user.setPasswordHash(loginDTO.getPassword());
+    public void saveLoginInfo(LoginDTO loginDTO) {
+        Optional<User> userOpt = userRepo.findByEmail(loginDTO.getEmail());
 
-        return userRepo.save(user);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User user = userOpt.get();
+
+        // ✅ Compare hashed password
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        // Optionally update last login time or log login
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userRepo.save(user);
+    }
+
+    @Override
+    public boolean emailExists(String email) {
+        return userRepo.existsByEmail(email);
     }
 }
